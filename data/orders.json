@@ -1,0 +1,184 @@
+[
+  {
+    "id": "A-1001",
+    "customer_id": "C001",
+    "date": "2026-11-02",
+    "status": "delivered",
+    "items": [
+      {
+        "name": "NovaBuds Pro headphones",
+        "qty": 1,
+        "price": 129
+      }
+    ],
+    "total": 129,
+    "charges": [
+      129
+    ],
+    "refund_eligible": true,
+    "refund_status": "none",
+    "tracking_number": null,
+    "estimated_delivery": null,
+    "note": "Delivered 2026-11-06"
+  },
+  {
+    "id": "A-1002",
+    "customer_id": "C002",
+    "date": "2026-11-10",
+    "status": "delivered",
+    "items": [
+      {
+        "name": "NovaCharge 65W charger",
+        "qty": 1,
+        "price": 49
+      }
+    ],
+    "total": 49,
+    "charges": [
+      49,
+      49
+    ],
+    "refund_eligible": true,
+    "refund_status": "none",
+    "tracking_number": null,
+    "estimated_delivery": null,
+    "note": "Customer was charged twice on 2026-11-10"
+  },
+  {
+    "id": "A-1003",
+    "customer_id": "C002",
+    "date": "2026-11-14",
+    "status": "shipped",
+    "items": [
+      {
+        "name": "NovaWatch band",
+        "qty": 1,
+        "price": 79
+      }
+    ],
+    "total": 79,
+    "charges": [
+      79
+    ],
+    "refund_eligible": false,
+    "refund_status": "none",
+    "tracking_number": "NG-77120945",
+    "estimated_delivery": "2026-11-21",
+    "note": ""
+  },
+  {
+    "id": "A-1004",
+    "customer_id": "C003",
+    "date": "2026-11-16",
+    "status": "processing",
+    "items": [
+      {
+        "name": "NovaCase phone case",
+        "qty": 1,
+        "price": 25
+      }
+    ],
+    "total": 25,
+    "charges": [
+      25
+    ],
+    "refund_eligible": true,
+    "refund_status": "none",
+    "tracking_number": null,
+    "estimated_delivery": null,
+    "note": "Not shipped yet, can be cancelled"
+  },
+  {
+    "id": "A-1005",
+    "customer_id": "C003",
+    "date": "2026-09-15",
+    "status": "delivered",
+    "items": [
+      {
+        "name": "NovaSpeaker Mini",
+        "qty": 1,
+        "price": 199
+      }
+    ],
+    "total": 199,
+    "charges": [
+      199
+    ],
+    "refund_eligible": false,
+    "refund_status": "none",
+    "tracking_number": null,
+    "estimated_delivery": null,
+    "note": "Delivered 2026-09-19, outside the 30-day return window"
+  },
+  {
+    "id": "A-1006",
+    "customer_id": "C004",
+    "date": "2026-11-05",
+    "status": "cancelled",
+    "items": [
+      {
+        "name": "NovaCam webcam",
+        "qty": 1,
+        "price": 59
+      }
+    ],
+    "total": 59,
+    "charges": [
+      59
+    ],
+    "refund_eligible": true,
+    "refund_status": "pending",
+    "tracking_number": null,
+    "estimated_delivery": null,
+    "note": "Cancelled by customer 2026-11-06, refund requested 2026-11-06"
+  },
+  {
+    "id": "A-1007",
+    "customer_id": "C001",
+    "date": "2026-11-12",
+    "status": "delayed",
+    "items": [
+      {
+        "name": "NovaDock hub",
+        "qty": 1,
+        "price": 89
+      },
+      {
+        "name": "USB-C cable",
+        "qty": 2,
+        "price": 10
+      }
+    ],
+    "total": 109,
+    "charges": [
+      109
+    ],
+    "refund_eligible": false,
+    "refund_status": "none",
+    "tracking_number": "NG-77120311",
+    "estimated_delivery": "2026-11-24",
+    "note": "Delayed at carrier hub"
+  },
+  {
+    "id": "A-1008",
+    "customer_id": "C004",
+    "date": "2026-10-20",
+    "status": "delivered",
+    "items": [
+      {
+        "name": "NovaMouse wireless",
+        "qty": 1,
+        "price": 35
+      }
+    ],
+    "total": 35,
+    "charges": [
+      35
+    ],
+    "refund_eligible": false,
+    "refund_status": "completed",
+    "tracking_number": null,
+    "estimated_delivery": null,
+    "note": "Returned 2026-10-30, refund of 35 completed 2026-11-03"
+  }
+]
