@@ -11,7 +11,7 @@ def load_pdf_to_chunks(file_path: str):
     loader = PyMuPDFLoader(file_path)
     documents = loader.load()
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=400, chunk_overlap=50)
     chunks = text_splitter.split_documents(documents)
 
     return chunks
@@ -23,8 +23,11 @@ def chunks_to_vector_store(chunks, vector_db: Chroma, embeddings_model: get_embe
     from pathlib import Path
     here = Path(__file__).parent
     vector_db_path = here / "vector_store"
-    vector_store = Chroma(collection_name="first_collection", persist_directory=str(vector_db_path), embedding_function=embeddings_model)
-    vector_store.add_documents(chunks)
+    if not vector_db_path.exists():
+        vector_store = Chroma(collection_name="first_collection", persist_directory=str(vector_db_path), embedding_function=embeddings_model)
+        vector_store.add_documents(chunks)
+    else:
+        vector_store = Chroma(collection_name="first_collection", persist_directory=str(vector_db_path), embedding_function=embeddings_model)
 
     return vector_store
 

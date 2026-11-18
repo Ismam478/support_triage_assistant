@@ -8,7 +8,7 @@ TECH = "Queries related to bugs, errors, system outages, login issues, or how to
 GENERAL = "Anything else that doesn't fit into billing or technical support. This could be questions about company policy, opening hours, business inquiries, or general feedback"
 
 
-def router(state: TicketSchema) -> Literal['billing', 'tech', 'general']:
+def router_node(state: TicketSchema) -> dict:
     """
     Reads the user ticket and categorizes it into three possible nodes: billing, tech, or general. 
     """
