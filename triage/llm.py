@@ -4,11 +4,11 @@ from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())  
 
-def get_llm(model_name: str = "gpt-5-nano", temperature: float = 0.0):
+def get_llm(model_name: str = "gpt-5-nano", temperature: float = 0.0, reasoning_effort: str = "minimal"):
     """
     Get a language model instance based on the specified model name and temperature.
     """
-    model = ChatOpenAI(model_name=model_name, temperature=temperature)
+    model = ChatOpenAI(model_name=model_name, temperature=temperature, reasoning_effort=reasoning_effort)
     return model
 
 def get_embeddings(model_name: str = "text-embedding-3-small"):

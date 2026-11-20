@@ -1,22 +1,23 @@
-from triage.rag import load_pdf_to_chunks, chunks_to_vector_store, query_vector_retriever
-from langchain_chroma import Chroma
-from triage.llm import get_embeddings
-from pathlib import Path
-
-here = Path(__file__).parent
-
-FILE_PATH = here / "data" / "faq.pdf"
+from triage.graph import build_graph
 
 def main():
-    
-    chunks = load_pdf_to_chunks(FILE_PATH)
-    embeddings_model=get_embeddings()
-    vector_store = chunks_to_vector_store(chunks, vector_db=Chroma, embeddings_model=embeddings_model)
-    results = query_vector_retriever(vector_store, query="What is the return policy?", embeddings_model=embeddings_model)
+    app = build_graph()
+    while True:
+        query = input("Enter your question (or 'exit' to quit): ")
+        if query.lower() == 'exit':
+            break
 
-    for doc in results:
-        print(f"Document: {doc.page_content}\n")
+        config = {'recursion_limit': 12}
+        results = app.invoke({"messages": [{"role": "user", "content": query}], "customer_id": input("Enter Customer ID: ")}, config=config)
 
+        for m in results["messages"]:
+            print(type(m).__name__, getattr(m, "tool_calls", ""), str(m.content)[:80])
+        print("Category:", results["category"])
+        print("Urgency:", results["urgency"])
+        print("Facts:", results["facts"])
+        print("Input Tokens:", results["input_tokens"])
+        print("Output Tokens:", results["output_tokens"])
+        print("LLM Calls:", results["llm_calls"])
 
 
 if __name__ == "__main__":

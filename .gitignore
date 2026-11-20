@@ -9,4 +9,4 @@ wheels/
 # Virtual environments
 .venv
 .env
-/triage/vector_store
+/vector_store
