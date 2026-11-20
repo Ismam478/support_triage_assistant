@@ -30,3 +30,18 @@ def router_node(state: TicketSchema) -> dict:
 
     return {"category": category, "urgency": urgency}
 
+
+def conditional_edge(state: TicketSchema) -> Literal["billing", "tech", "general"]:
+    """
+    Determines the next node in the workflow based on the category of the ticket.
+    """
+    category = state.category
+
+    if category == "billing":
+        return "billing"
+    elif category == "tech":
+        return "tech"
+    else:
+        return "general"
+
+

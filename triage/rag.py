@@ -31,14 +31,13 @@ def chunks_to_vector_store(chunks, vector_db: Chroma, embeddings_model: get_embe
 
     return vector_store
 
-def query_vector_retriever(vector_store: Chroma, query: str, embeddings_model: get_embeddings):
+def query_vector_retriever(vector_store: Chroma, query: str, embeddings_model: get_embeddings, k: int = 3):
     """
     Queries the vector store for relevant documents based on the input query.
     """
     if not query:
         raise ValueError("Query cannot be empty.")
     query_embedding = embeddings_model.embed_query(query)
-    results = vector_store.similarity_search_by_vector(embedding=query_embedding, k=3)
+    results = vector_store.similarity_search_by_vector(embedding=query_embedding, k=k)
 
     return results
-
