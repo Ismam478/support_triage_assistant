@@ -20,7 +20,7 @@ def list_orders(customer_id: str) -> list[dict]:
     return customer_orders
 
 @tool
-def lookup_orders(order_id: str, customer_id: str) -> dict:
+def lookup_order(order_id: str, customer_id: str) -> dict:
     """
     Looks up a specific order by its ID.
     """

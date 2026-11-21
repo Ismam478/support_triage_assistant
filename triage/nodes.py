@@ -1,16 +1,28 @@
 from langchain_core.messages import SystemMessage, ToolMessage
-from triage.state import TicketSchema, RouterSchema
 from langchain_core.prompts import ChatPromptTemplate
-from triage.tools import list_orders, lookup_orders, search_faq
+from langgraph.types import interrupt, Command
+from triage.state import TicketSchema, RouterSchema
+from triage.tools import list_orders, lookup_order, search_faq
 from triage.llm import get_llm
 from typing import Literal
+from pathlib import Path
 
-BILLING = "Queries related to money, invoices, subscriptions, payments, or refunds"
+here = Path(__file__).parent
+
+BILLING = "Queries related to money, orders, invoices, subscriptions, payments, or refunds"
 TECH = "Queries related to bugs, errors, system outages, login issues, or how to use a specific software feature"
 GENERAL = "Anything else that doesn't fit into billing or technical support. This could be questions about company policy, opening hours, business inquiries, or general feedback"
 
-BILLING_TOOLS = [list_orders, lookup_orders]
+BILLING_TOOLS = [list_orders, lookup_order]
 TOOLS_BOX = [search_faq]
+
+INSTRUCTIONS = {
+    "billing": "You are a billing specialist. Output only facts, as a bullet list. Do not offer to do anything, do not ask questions, do not address the customer. Your task is to read the user's ticket and use the available tools to provide only the accurate information. Do not make up any information. If the information is not available, state what you dont know. If no order id is given, call list_orders, then call lookup_order for each recent order (at most 3), and compare the charges.",
+    "tech": "You are tech support specialist. Output only facts, as a bullet list. Do not offer to do anything, do not ask questions, do not address the customer. Your task is to read the user's ticket and use the available tools to provide only the accurate information. Do not make up any information. If the information is not available, state what you dont know. ",
+    "general": "You are a general support specialist. Output only facts, as a bullet list. Do not offer to do anything, do not ask questions, do not address the customer. Your task is to read the user's ticket and use the available tools to provide only the accurate information. Do not make up any information. If the information is not available, state what you dont know. "
+}
+
+OUTPUT_FILE = here.parent / "output.txt"
 
 def router_node(state: TicketSchema) -> dict:
     """
@@ -68,18 +80,12 @@ def custom_tool_node(state:TicketSchema) -> dict:
                 tool_results.append(ToolMessage(content=f"Error: {e}", tool_call_id=tool_id, status="error"))       
     return {'messages': tool_results}
 
-def if_tool_call(state:TicketSchema) -> Literal["tool_node", "end"]:
+def if_tool_call(state:TicketSchema) -> Literal["tool_node", "facts"]:
     last_message = state.messages[-1]
     if last_message.tool_calls:
         return 'tool_node'
     else:
-        return 'end'
-
-INSTRUCTIONS = {
-    "billing": "You are a billing specialist. Output only facts, as a bullet list. Do not offer to do anything, do not ask questions, do not address the customer. Your task is to read the user's ticket and use the available tools to provide only the accurate information. Do not make up any information. If the information is not available, state what you dont know. If no order id is given, call list_orders, then call lookup_orders for each recent order (at most 3), and compare the charges.",
-    "tech": "You are tech support specialist. Output only facts, as a bullet list. Do not offer to do anything, do not ask questions, do not address the customer. Your task is to read the user's ticket and use the available tools to provide only the accurate information. Do not make up any information. If the information is not available, state what you dont know. ",
-    "general": "You are a general support specialist. Output only facts, as a bullet list. Do not offer to do anything, do not ask questions, do not address the customer. Your task is to read the user's ticket and use the available tools to provide only the accurate information. Do not make up any information. If the information is not available, state what you dont know. "
-}
+        return 'facts'
 
 def specialist_node(state: TicketSchema):
 
@@ -102,3 +108,51 @@ def specialist_node(state: TicketSchema):
 
 def facts_node(state: TicketSchema) -> dict:
     return {"facts": [state.messages[-1].content]}
+
+def approval_node(state: TicketSchema) -> Command[Literal['write', 'drafter']]:
+    
+    decision = interrupt({"draft": state.draft})
+
+    action = decision["action"]
+
+    if action == "approve":
+        return Command(goto="write")
+    elif action == "edit":
+        return Command(goto="write", update={"draft": decision["text"]})
+    elif action == "reject":
+        return Command(goto="drafter", update={"feedback": decision["feedback"], "redrafts": state.redrafts + 1})
+    else:
+        raise ValueError(f"Unknown Action: {action}")
+    
+def ask_human(draft:str):
+
+    print("\n----- DRAFT -----\n" + draft + "\n-----------------")
+    decision = input("approve / reject / edit: ").lower().strip()
+
+    if decision == 'approve':
+        return {'action': 'approve'}
+    elif decision == 'reject':
+        return {'action': 'reject', 'feedback': input("Enter Your Feedback: ")}
+    elif decision == 'edit':
+        return {"action": "edit", "text": input("Enter Your Edited Draft: ")}
+    else:
+        print("Please type approve, reject or edit.")
+    return ask_human(draft)
+
+def review_loop(draft:str, app, config):
+    while True:
+        decision = ask_human(draft)
+        result = app.invoke(Command(resume=decision), config)
+        if not '__interrupt__' in result:
+            break
+        draft = result['__interrupt__'][0].value['draft']
+    print(f"Email Approved and Sent Successfully!")
+    return draft
+
+def write_email_to_txt(state: TicketSchema) -> dict:
+    
+    with open(OUTPUT_FILE, "a", encoding="utf-8") as f:
+        f.write(f"{state.draft}\n{'-'*40}\n")
+    
+    print("\nEmail Saved Successfully")
+    return {}
