@@ -12,7 +12,7 @@ class TicketSchema(BaseModel):
     facts: list = Field(description="The facts related to the ticket.", default_factory=list)
     draft: str = Field(description="The draft response waiting for approval.", default="")
     feedback: str = Field(description="The feedback provided by the human agent .", default="")
-    redrafts: Annotated[int, add] = Field(description="The number of times the response has been redrafted.", default=0)
+    redrafts: int = Field(description="The number of times the response has been redrafted.", default=0)
     llm_calls: Annotated[int, add] = Field(description="The number of LLM calls made for the ticket.", default=0)
     input_tokens: Annotated[int, add] = Field(description="The number of input tokens used for the ticket.", default=0)
     output_tokens: Annotated[int, add] = Field(description="The number of output tokens generated for the ticket.", default=0)
@@ -21,3 +21,7 @@ class RouterSchema(BaseModel):
     category: Literal["billing", "tech", "general"] = Field(..., description="The category of the ticket.")
     urgency: Literal["low", 'high'] = Field(..., description="The urgency level of the ticket.")
 
+def current_ticket(messages):
+    """Messages from the latest customer message onward."""
+    last = max(i for i, m in enumerate(messages) if m.type == "human")
+    return messages[last:]

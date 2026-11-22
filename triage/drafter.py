@@ -1,5 +1,6 @@
-from triage.state import TicketSchema
+from triage.state import TicketSchema, current_ticket
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import HumanMessage
 from triage.llm import get_llm
 import re
 
@@ -51,13 +52,19 @@ def check_rules(draft: str, facts: list[str]) -> list[str]:
     if not re.match(r"\s*(Hi|Hello|Dear)\b", draft):
         problems.append("Start with a greeting such as Hello.")
 
+    if re.search(r"(\bC\d{3}\b)", draft):
+        problems.append("Do not mention the csutomer id (C123) in the draft.")
+        
+
     return problems
 
 def drafter_node(state: TicketSchema) -> dict:
     """
     This is the drafter node, which takes the facts and generates a draft response.
     """
-    text_ticket = state.messages[0].content
+    messages = state.messages
+    text_ticket = current_ticket(messages)[0].content
+              
     facts = state.facts
     category = state.category
     urgency = state.urgency
@@ -80,10 +87,6 @@ def drafter_node(state: TicketSchema) -> dict:
 
         problems = check_rules(draft, facts)
         # return {'draft': draft, "llm_calls": 1, 'input_tokens': input_tokens, 'output_tokens': output_tokens, "feedback": ""}
-    
-    elif feedback and redrafts > 3:
-        print(f"\nYou have already redrafted 3 times. The last draft will be used as the final draft.")
-        return {'draft': state.draft, "llm_calls": 0, 'input_tokens': 0, 'output_tokens': 0, "feedback": ""}
     
     else:
         prompt = ChatPromptTemplate.from_messages(
@@ -108,18 +111,18 @@ def drafter_node(state: TicketSchema) -> dict:
         if problems and feedback:
             prompt = ChatPromptTemplate.from_messages(
                 [
-                    ("system", "You are a {category} customer support email drafter(Make sure to follow the email layout). Use the facts below: {facts}. Use feedback to improve the draft feedback: {feedback}. {MIN_WORDS} to {MAX_WORDS} words. Everything else is the same as before."),
+                    ("system", "You are a {category} customer support email drafter(Make sure to follow the email layout). Use the facts below: {facts}. Use feedback to improve the draft feedback: {feedback}. {MIN_WORDS} to {MAX_WORDS} words. Keep everything else same as before."),
                     ("user", "User's ticket: {text_ticket}\nUser's urgency: {urgency}. Do not make up any single information. The following rules were violated in your previous draft: {problems}. Please revise your draft: {draft} to comply with these rules.")
                 ]
             )
             while count < 3 and problems:
-                            count += 1
-                            redraft_chain = prompt | llm
-                            response = redraft_chain.invoke({"text_ticket": text_ticket, "urgency": urgency, "problems": problems, "draft": draft, "category": category, "facts": "\n".join(facts),"feedback": feedback, "MIN_WORDS": MIN_WORDS, "MAX_WORDS": MAX_WORDS})
-                            draft = response.content
-                            input_tokens += response.usage_metadata["input_tokens"]
-                            output_tokens += response.usage_metadata["output_tokens"]
-                            problems = check_rules(draft, facts)
+                count += 1
+                redraft_chain = prompt | llm
+                response = redraft_chain.invoke({"text_ticket": text_ticket, "urgency": urgency, "problems": problems, "draft": draft, "category": category, "facts": "\n".join(facts),"feedback": feedback, "MIN_WORDS": MIN_WORDS, "MAX_WORDS": MAX_WORDS})
+                draft = response.content
+                input_tokens += response.usage_metadata["input_tokens"]
+                output_tokens += response.usage_metadata["output_tokens"]
+                problems = check_rules(draft, facts)
         
         else:
             prompt = ChatPromptTemplate.from_messages(

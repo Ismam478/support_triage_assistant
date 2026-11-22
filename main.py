@@ -31,21 +31,34 @@ def main():
             customer_id = input("Enter customer ID: ")
             config = {'configurable': {'thread_id': customer_id}, 'recursion_limit': 12}
 
-            results = app.invoke({"messages": [{"role": "user", "content": query}], "customer_id": customer_id, "facts": [], "draft": "", "feedback": "", "redrafts": 0}, config=config)
-            draft = results["draft"]
-            for m in results["messages"]:
-                print(type(m).__name__, getattr(m, "tool_calls", ""), str(m.content)[:80])
-            print("\nCategory:", results["category"])
-            print("Urgency:", results["urgency"])
+            before = app.get_state(config).values
+
+            # results = app.invoke({"messages": [{"role": "user", "content": query}], "customer_id": customer_id, "facts": [], "draft": "", "feedback": "", "redrafts": 0}, config=config)
+            for chunk in app.stream({"messages": [{"role": "user", "content": query}], "customer_id": customer_id, "facts": [], "draft": "", "feedback": "", "redrafts": 0}, config=config, stream_mode="updates"):
+                print(f"\n{chunk}")
+                if chunk.get("drafter"):
+                    draft = chunk["drafter"]["draft"]
+                    
+
+            # draft = results["draft"]
+            # for m in results["messages"]:
+            #     print(type(m).__name__, getattr(m, "tool_calls", ""), str(m.content)[:80])
+            # print("\nCategory:", results["category"])
+            # print("Urgency:", results["urgency"])
             
 
-            draft =review_loop(draft, app, config)
+            draft = review_loop(draft, app, config)
+            after = app.get_state(config).values
 
-            print("Drafted Response:", draft)
-            print("Facts:", results["facts"])
-            print("Input Tokens:", results["input_tokens"])
-            print("Output Tokens:", results["output_tokens"])
-            print("LLM Calls:", results["llm_calls"])
+            calls = after["llm_calls"] - before.get("llm_calls", 0)
+
+            print("Drafted Response:", after["draft"])
+            print("Redrafts:", after["redrafts"])
+            print("Facts:", after["facts"])
+            print("Input Tokens:", after["input_tokens"])
+            print("Output Tokens:", after["output_tokens"])
+            print("LLM Calls:", after["llm_calls"])
+            print("LLM Calls (this iteration):", calls)
 
 
 if __name__ == "__main__":

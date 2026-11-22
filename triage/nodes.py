@@ -1,7 +1,7 @@
-from langchain_core.messages import SystemMessage, ToolMessage
+from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.types import interrupt, Command
-from triage.state import TicketSchema, RouterSchema
+from triage.state import TicketSchema, RouterSchema, current_ticket
 from triage.tools import list_orders, lookup_order, search_faq
 from triage.llm import get_llm
 from typing import Literal
@@ -9,7 +9,7 @@ from pathlib import Path
 
 here = Path(__file__).parent
 
-BILLING = "Queries related to money, orders, invoices, subscriptions, payments, or refunds"
+BILLING = "Queries related to money, status of orders, invoices, subscriptions, payments, or refunds"
 TECH = "Queries related to bugs, errors, system outages, login issues, or how to use a specific software feature"
 GENERAL = "Anything else that doesn't fit into billing or technical support. This could be questions about company policy, opening hours, business inquiries, or general feedback"
 
@@ -28,7 +28,8 @@ def router_node(state: TicketSchema) -> dict:
     """
     Reads the user ticket and categorizes it into three possible nodes: billing, tech, or general. 
     """
-    messages = state.messages[-1].content
+    messages = state.messages
+    text_ticket = [m.content for m in messages if isinstance(m, HumanMessage)][-1]
     if not messages:
         raise ValueError("No messages found in the ticket.")
     llm = get_llm().with_structured_output(RouterSchema)
@@ -41,7 +42,7 @@ def router_node(state: TicketSchema) -> dict:
     )
     chain = prompt | llm
 
-    result = chain.invoke({"messages": messages})
+    result = chain.invoke({"messages": text_ticket})
 
     category = result.category
     urgency = result.urgency
@@ -89,14 +90,14 @@ def if_tool_call(state:TicketSchema) -> Literal["tool_node", "facts"]:
 
 def specialist_node(state: TicketSchema):
 
-    messages = state.messages
+    messages = current_ticket(state.messages)
     tools = BILLING_TOOLS if state.category == "billing" else TOOLS_BOX
     instructions = INSTRUCTIONS[state.category]
 
     system = SystemMessage(
-    content=f"Instructions: {instructions}\nThe customer id is {state.customer_id}. "
-            f"Pass this exact id in every tool call."
-    )
+        content=f"Instructions: {instructions}\nThe customer id is {state.customer_id}. "
+                f"Pass this exact id in every tool call."
+        )
 
     response = get_llm(reasoning_effort="low").bind_tools(tools).invoke([system] + messages)
     
@@ -123,29 +124,43 @@ def approval_node(state: TicketSchema) -> Command[Literal['write', 'drafter']]:
         return Command(goto="drafter", update={"feedback": decision["feedback"], "redrafts": state.redrafts + 1})
     else:
         raise ValueError(f"Unknown Action: {action}")
-    
-def ask_human(draft:str):
+
+def ask_human(draft:str, redrafts:int) -> dict:
 
     print("\n----- DRAFT -----\n" + draft + "\n-----------------")
-    decision = input("approve / reject / edit: ").lower().strip()
+    if redrafts >= 3:
 
-    if decision == 'approve':
-        return {'action': 'approve'}
-    elif decision == 'reject':
-        return {'action': 'reject', 'feedback': input("Enter Your Feedback: ")}
-    elif decision == 'edit':
-        return {"action": "edit", "text": input("Enter Your Edited Draft: ")}
+        decision = input("approve / edit: ").lower().strip()
+
+        if decision == 'approve':
+                return {'action': 'approve'}
+        elif decision == 'edit':
+            return {"action": "edit", "text": input("Enter Your Edited Draft: ")}
+        else:
+            print("Please type approve or edit.")
+        return ask_human(draft, redrafts)
+    
     else:
-        print("Please type approve, reject or edit.")
-    return ask_human(draft)
+        decision = input("approve / reject / edit: ").lower().strip()
+
+        if decision == 'approve':
+            return {'action': 'approve'}
+        elif decision == 'reject':
+            return {'action': 'reject', 'feedback': input("Enter Your Feedback: ")}
+        elif decision == 'edit':
+            return {"action": "edit", "text": input("Enter Your Edited Draft: ")}
+        else:
+            print("Please type approve, reject or edit.")
+        return ask_human(draft, redrafts)
 
 def review_loop(draft:str, app, config):
     while True:
-        decision = ask_human(draft)
+        redrafts = app.get_state(config=config).values['redrafts']
+        decision = ask_human(draft, redrafts)
         result = app.invoke(Command(resume=decision), config)
         if not '__interrupt__' in result:
             break
-        draft = result['__interrupt__'][0].value['draft']
+        draft = result["draft"]
     print(f"Email Approved and Sent Successfully!")
     return draft
 
