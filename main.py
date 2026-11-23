@@ -51,14 +51,21 @@ def main():
             after = app.get_state(config).values
 
             calls = after["llm_calls"] - before.get("llm_calls", 0)
+            input_tokens = after["input_tokens"] - before.get("input_tokens", 0)
+            output_tokens = after["output_tokens"] - before.get("output_tokens", 0)
 
             print("Drafted Response:", after["draft"])
             print("Redrafts:", after["redrafts"])
             print("Facts:", after["facts"])
             print("Input Tokens:", after["input_tokens"])
+            print("Input Tokens (this iteration):", input_tokens)
             print("Output Tokens:", after["output_tokens"])
+            print("Output Tokens (this iteration):", output_tokens)
             print("LLM Calls:", after["llm_calls"])
             print("LLM Calls (this iteration):", calls)
+
+            total_cost_per_token = (input_tokens * (0.05/1000000)) + (output_tokens * (0.40/1000000)) # According to GPT-5-nano pricing (https://developers.openai.com/api/docs/models/gpt-5-nano)
+            print("Total Cost (this iteration): $", total_cost_per_token)
 
 
 if __name__ == "__main__":

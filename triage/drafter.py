@@ -17,9 +17,9 @@ def check_rules(draft: str, facts: list[str]) -> list[str]:
     # 1. Length
     word_count = len(draft.split())
     if word_count < MIN_WORDS:
-        problems.append(f"Too short: {word_count} words. Write at least {MIN_WORDS}.")
+        problems.append(f"Too short: {word_count} words. Write at least {MIN_WORDS} words.")
     if word_count > MAX_WORDS:
-        problems.append(f"Too long: {word_count} words. Write at most {MAX_WORDS}.")
+        problems.append(f"Too long: {word_count} words. Write at most {MAX_WORDS} words.")
 
     # 2. Order ids
     draft_ids = set(re.findall(r"A-\d{4}", draft))
@@ -75,12 +75,12 @@ def drafter_node(state: TicketSchema) -> dict:
     if feedback and redrafts <= 3:
         prompt = ChatPromptTemplate.from_messages(
             [
-                ("system", "You are a {category} customer support email drafter(Make sure to follow the email layout). Use only the feedback to improve the draft. Everything else is the same as before. "),
-                ("user", "User's ticket: {text_ticket}\nUser's urgency: {urgency}. Do not make up any single information. The following feedback was given on your previous draft: {feedback}. Please revise your draft to comply with this feedback: {draft}.")
+                ("system", "You are a {category} customer support email drafter. Use only the feedback to improve the draft. Keep everything else same as before. {MIN_WORDS} to {MAX_WORDS} words. Do not suggest the user any single thing, use only the facts and feedback to answer user's question. Do not promise any time frame unless the facts state one. Never write 'I can', 'please reply', or 'let us know'. Write money amounts with a $ sign, exactly as in the facts."),
+                ("user", "User's ticket: {text_ticket}\nUser's urgency: {urgency}. Do not make up any single information. The following feedback was given on your previous draft: {feedback}. Revise the draft below according to the reviewer's feedback: {draft}. Keep it consistent with the facts.")
             ]
         )
         chain = prompt | llm
-        response = chain.invoke({"text_ticket": text_ticket, "urgency": urgency, "feedback": feedback, "draft": state.draft, "category": category})
+        response = chain.invoke({"text_ticket": text_ticket, "urgency": urgency, "feedback": feedback, "draft": state.draft, "category": category, "MIN_WORDS": MIN_WORDS, "MAX_WORDS": MAX_WORDS})
         draft = response.content
         input_tokens = response.usage_metadata["input_tokens"]
         output_tokens = response.usage_metadata["output_tokens"]
@@ -91,7 +91,7 @@ def drafter_node(state: TicketSchema) -> dict:
     else:
         prompt = ChatPromptTemplate.from_messages(
             [
-                ("system", "You are a {category} customer support email drafter(Make sure to follow the email layout). Use only the facts below: {facts}. Mention only the order(s) that relate to the customer's problem, and ignore other orders. Structure: greeting, one or two sentences about what we found, what happens next (including the timeline if the facts give one), and the sign-off \"NovaGear Support\". Do not list fields. Do not ask questions or offer anything. {MIN_WORDS} to {MAX_WORDS} words. If the facts don't contain the answer, say a team member will follow up. If urgency is high, acknowledge that in the first sentence."),
+                ("system", "You are a {category} customer support email drafter. Use only the facts below: {facts}. Mention only the order(s) that relate to the customer's problem, and ignore other orders. Structure: greeting, one or two sentences about the user's issue, Do not suggest any timeline unless the facts state one, and the sign-off \"NovaGear Support\". Do not list fields. Do not ask questions or offer anything. {MIN_WORDS} to {MAX_WORDS} words. Write money amounts with a $ sign, exactly as in the facts. If urgency is high, acknowledge that in the first sentence."),
                 ("user", "User's ticket: {text_ticket}\nUser's urgency: {urgency}. Do not make up any single information.")
             ]
         )
@@ -111,8 +111,8 @@ def drafter_node(state: TicketSchema) -> dict:
         if problems and feedback:
             prompt = ChatPromptTemplate.from_messages(
                 [
-                    ("system", "You are a {category} customer support email drafter(Make sure to follow the email layout). Use the facts below: {facts}. Use feedback to improve the draft feedback: {feedback}. {MIN_WORDS} to {MAX_WORDS} words. Keep everything else same as before."),
-                    ("user", "User's ticket: {text_ticket}\nUser's urgency: {urgency}. Do not make up any single information. The following rules were violated in your previous draft: {problems}. Please revise your draft: {draft} to comply with these rules.")
+                    ("system", "You are a {category} customer support email drafter. Use the facts below: {facts}. The draft should be between {MIN_WORDS} to {MAX_WORDS} words. Keep everything else same as before. Do not suggest the user any single thing, use only the facts and feedback to answer user's question. Do not promise any time frame unless the facts state one. Never write 'I can', 'please reply', or 'let us know'. Write money amounts with a $ sign, exactly as in the facts."),
+                    ("user", "User's ticket: {text_ticket}\nUser's urgency: {urgency}. Do not make up any single information. The following rules were violated in your previous draft: {problems}. The following feedback was given on your previous draft: {feedback}. Revise the draft below according to the reviewer's feedback: {draft}. Keep it consistent with the facts.")
                 ]
             )
             while count < 3 and problems:
@@ -127,7 +127,7 @@ def drafter_node(state: TicketSchema) -> dict:
         else:
             prompt = ChatPromptTemplate.from_messages(
                 [
-                    ("system", "You are a {category} customer support email drafter(Make sure to follow the email layout). Use only the facts below: {facts}. Mention only the order(s) that relate to the customer's problem, and ignore other orders. Structure: greeting, one or two sentences about what we found, what happens next (including the timeline if the facts give one), and the sign-off \"NovaGear Support\". Do not list fields. Do not ask questions or offer anything. {MIN_WORDS} to {MAX_WORDS} words. If the facts don't contain the answer, say a team member will follow up. If urgency is high, acknowledge that in the first sentence."),
+                    ("system", "You are a {category} customer support email drafter. Use only the facts below: {facts}. Mention only the order(s) that relate to the customer's problem, and ignore other orders. Structure: greeting, one or two sentences about the user's issue, Do not suggest any timeline unless the facts state one, and the sign-off \"NovaGear Support\". Do not list fields. Do not ask questions or offer anything. {MIN_WORDS} to {MAX_WORDS} words. Write money amounts with a $ sign, exactly as in the facts. If urgency is high, acknowledge that in the first sentence."),
                     ("user", "User's ticket: {text_ticket}\nUser's urgency: {urgency}. Do not make up any single information. The following rules were violated in your previous draft: {problems}. Please revise your draft: {draft} to comply with these rules.")
                 ]
             )
