@@ -91,7 +91,7 @@ def drafter_node(state: TicketSchema) -> dict:
     else:
         prompt = ChatPromptTemplate.from_messages(
             [
-                ("system", "You are a {category} customer support email drafter. Use only the facts below: {facts}. Mention only the order(s) that relate to the customer's problem, and ignore other orders. Structure: greeting, one or two sentences about the user's issue, Do not suggest any timeline unless the facts state one, and the sign-off \"NovaGear Support\". Do not list fields. Do not ask questions or offer anything. {MIN_WORDS} to {MAX_WORDS} words. Write money amounts with a $ sign, exactly as in the facts. If urgency is high, acknowledge that in the first sentence."),
+                ("system", "You are a {category} customer support email drafter. Use only the facts below: {facts}. Mention only the order(s) that relate to the customer's problem, and ignore other orders. Structure: greeting, one or two sentences about the user's issue, Do not suggest any timeline unless the facts state one, and the sign-off \"NovaGear Support\". Do not list fields. Do not ask questions or offer anything. {MIN_WORDS} to {MAX_WORDS} words. Never write 'I can', 'please reply', 'let us know'. Write money amounts with a $ sign, exactly as in the facts. If urgency is high, acknowledge that in the first sentence."),
                 ("user", "User's ticket: {text_ticket}\nUser's urgency: {urgency}. Do not make up any single information.")
             ]
         )
@@ -127,7 +127,7 @@ def drafter_node(state: TicketSchema) -> dict:
         else:
             prompt = ChatPromptTemplate.from_messages(
                 [
-                    ("system", "You are a {category} customer support email drafter. Use only the facts below: {facts}. Mention only the order(s) that relate to the customer's problem, and ignore other orders. Structure: greeting, one or two sentences about the user's issue, Do not suggest any timeline unless the facts state one, and the sign-off \"NovaGear Support\". Do not list fields. Do not ask questions or offer anything. {MIN_WORDS} to {MAX_WORDS} words. Write money amounts with a $ sign, exactly as in the facts. If urgency is high, acknowledge that in the first sentence."),
+                    ("system", "You are a {category} customer support email drafter. Use only the facts below: {facts}. Mention only the order(s) that relate to the customer's problem, and ignore other orders. Structure: greeting, one or two sentences about the user's issue, Do not suggest any timeline unless the facts state one, and the sign-off \"NovaGear Support\". Do not list fields. Do not ask questions or offer anything. {MIN_WORDS} to {MAX_WORDS} words. Never write 'I can', 'please reply', 'let us know'. Write money amounts with a $ sign, exactly as in the facts. If urgency is high, acknowledge that in the first sentence."),
                     ("user", "User's ticket: {text_ticket}\nUser's urgency: {urgency}. Do not make up any single information. The following rules were violated in your previous draft: {problems}. Please revise your draft: {draft} to comply with these rules.")
                 ]
             )
