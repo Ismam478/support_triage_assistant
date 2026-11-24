@@ -1,5 +1,6 @@
 from triage.graph import build_graph
 from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.errors import GraphRecursionError
 from pathlib import Path
 
 from triage.nodes import review_loop
@@ -32,23 +33,26 @@ def main():
             config = {'configurable': {'thread_id': customer_id}, 'recursion_limit': 12}
 
             before = app.get_state(config).values
-
-            # results = app.invoke({"messages": [{"role": "user", "content": query}], "customer_id": customer_id, "facts": [], "draft": "", "feedback": "", "redrafts": 0}, config=config)
-            for chunk in app.stream({"messages": [{"role": "user", "content": query}], "customer_id": customer_id, "facts": [], "draft": "", "feedback": "", "redrafts": 0}, config=config, stream_mode="updates"):
-                print(f"\n{chunk}")
-                if chunk.get("drafter"):
-                    draft = chunk["drafter"]["draft"]
+            try:
+                # results = app.invoke({"messages": [{"role": "user", "content": query}], "customer_id": customer_id, "facts": [], "draft": "", "feedback": "", "redrafts": 0}, config=config)
+                for chunk in app.stream({"messages": [{"role": "user", "content": query}], "customer_id": customer_id, "facts": [], "draft": "", "feedback": "", "redrafts": 0}, config=config, stream_mode="updates"):
+                    print(f"\n{chunk}")
+                    if chunk.get("drafter"):
+                        draft = chunk["drafter"]["draft"]
                     
 
-            # draft = results["draft"]
-            # for m in results["messages"]:
-            #     print(type(m).__name__, getattr(m, "tool_calls", ""), str(m.content)[:80])
-            # print("\nCategory:", results["category"])
-            # print("Urgency:", results["urgency"])
+                # draft = results["draft"]
+                # for m in results["messages"]:
+                #     print(type(m).__name__, getattr(m, "tool_calls", ""), str(m.content)[:80])
+                # print("\nCategory:", results["category"])
+                # print("Urgency:", results["urgency"])
+                
+                draft = review_loop(draft, app, config)
+                after = app.get_state(config).values
             
-
-            draft = review_loop(draft, app, config)
-            after = app.get_state(config).values
+            except GraphRecursionError as e:
+                print(f"GraphRecursionError: {e}")
+                continue
 
             calls = after["llm_calls"] - before.get("llm_calls", 0)
             input_tokens = after["input_tokens"] - before.get("input_tokens", 0)
