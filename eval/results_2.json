@@ -1,0 +1,243 @@
+[
+    {
+        "id": 101,
+        "query": "Can I still cancel order A-1004? It has not shipped yet.",
+        "rules_error_count": 0,
+        "customer_id": "C003",
+        "expected_category": "billing",
+        "category": "billing",
+        "expected_urgency": "low",
+        "urgency": "low",
+        "expected_tools": [
+            "lookup_order"
+        ],
+        "tools_used": [
+            "lookup_order"
+        ],
+        "draft": "Hello,\n\nOrder A-1004 is currently in processing and has not shipped yet, and it is eligible for a refund. A team member will follow up with you about canceling the order and processing the refund of $25.\n\nNovaGear Support",
+        "facts": [
+            "- id: A-1004\n- customer_id: C003\n- date: 2026-11-16\n- status: processing\n- items: [{'name': 'NovaCase phone case', 'qty': 1, 'price': 25}]\n- total: 25\n- charges: [25]\n- refund_eligible: True\n- refund_status: none\n- tracking_number: None\n- estimated_delivery: None\n- note: Not shipped yet, can be cancelled"
+        ],
+        "tricky": false,
+        "llm_calls": 4,
+        "input_tokens": 1558,
+        "output_tokens": 522
+    },
+    {
+        "id": 102,
+        "query": "Has the refund for the item I sent back gone through yet?",
+        "rules_error_count": 0,
+        "customer_id": "C004",
+        "expected_category": "billing",
+        "category": "billing",
+        "expected_urgency": "low",
+        "urgency": "low",
+        "expected_tools": [
+            "list_orders"
+        ],
+        "tools_used": [
+            "list_orders",
+            "lookup_order",
+            "lookup_order"
+        ],
+        "draft": "Hello,\n\nWe see that A-1006 is marked refund-eligible but currently has a pending refund status. A team member will follow up with you about the refund for the NovaCam webcam.\n\nNovaGear Support",
+        "facts": [
+            "- Order A-1006: date 2026-11-05; status cancelled; total 59; charges [59]; refund_eligible True; refund_status pending; items: NovaCam webcam qty 1 price 59; note: Cancelled by customer 2026-11-06, refund requested 2026-11-06\n- Order A-1008: date 2026-10-20; status delivered; total 35; charges [35]; refund_eligible False; refund_status completed; items: NovaMouse wireless qty 1 price 35; note: Returned 2026-10-30, refund of 35 completed 2026-11-03"
+        ],
+        "tricky": false,
+        "llm_calls": 5,
+        "input_tokens": 2409,
+        "output_tokens": 877
+    },
+    {
+        "id": 103,
+        "query": "I think order A-1001 was charged to my card but I never received an invoice.",
+        "rules_error_count": 0,
+        "customer_id": "C001",
+        "expected_category": "billing",
+        "category": "billing",
+        "expected_urgency": "low",
+        "urgency": "low",
+        "expected_tools": [
+            "lookup_order"
+        ],
+        "tools_used": [
+            "lookup_order"
+        ],
+        "draft": "Hello,\n\nWe see that order A-1001 for NovaBuds Pro headphones was delivered, but there is no invoice found in our records. The order shows a total of $129 and a charge of $129, with delivery noted on 2026-11-06. A team member will follow up with you about obtaining an invoice.\n\nNovaGear Support",
+        "facts": [
+            "- order_id: A-1001\n- customer_id: C001\n- date: 2026-11-02\n- status: delivered\n- items: [{ name: NovaBuds Pro headphones, qty: 1, price: 129 }]\n- total: 129\n- charges: [129]\n- refund_eligible: True\n- refund_status: none\n- tracking_number: Not found: tracking_number\n- estimated_delivery: Not found: estimated_delivery\n- note: Delivered 2026-11-06\n- Not found: invoice"
+        ],
+        "tricky": false,
+        "llm_calls": 4,
+        "input_tokens": 1584,
+        "output_tokens": 431
+    },
+    {
+        "id": 104,
+        "query": "A payment of $79 left my account and I do not remember buying anything this week.",
+        "rules_error_count": 0,
+        "customer_id": "C002",
+        "expected_category": "billing",
+        "category": "billing",
+        "expected_urgency": "high",
+        "urgency": "high",
+        "expected_tools": [
+            "list_orders"
+        ],
+        "tools_used": [
+            "list_orders",
+            "lookup_order"
+        ],
+        "draft": "Hello,\n\nWe see a $79 charge for Order A-1003 (NovaWatch band) shipping to you, with status shipped and an estimated delivery of 2026-11-21. You also have Order A-1002 for $49 that was delivered. A team member will follow up to review the $79 charge and confirm details.\n\nNovaGear Support",
+        "facts": [
+            "- Order A-1003 (customer_id: C002)\n  - date: 2026-11-14\n  - status: shipped\n  - total: 79\n  - charges: [79]\n  - items: NovaWatch band, qty 1, price 79\n  - tracking_number: NG-77120945\n  - estimated_delivery: 2026-11-21\n  - refund_eligible: False\n  - refund_status: none\n- Order A-1002 (customer_id: C002)\n  - date: 2026-11-10\n  - status: delivered\n  - total: 49\n  - charges: [49]\n  - items: not listed in this summary (order-level data available in tools shows total and status)"
+        ],
+        "tricky": true,
+        "llm_calls": 5,
+        "input_tokens": 2274,
+        "output_tokens": 699
+    },
+    {
+        "id": 105,
+        "query": "How do I update the app? I cannot find where to do it.",
+        "rules_error_count": 0,
+        "customer_id": "C002",
+        "expected_category": "tech",
+        "category": "tech",
+        "expected_urgency": "low",
+        "urgency": "low",
+        "expected_tools": [
+            "search_faq"
+        ],
+        "tools_used": [
+            "search_faq"
+        ],
+        "draft": "Hello,\n\nWe can help with updating the app. To update, update to the latest app version, then restart your phone. If the app still crashes, clear the app cache in your phone settings and sign in again. If it keeps crashing after that, reinstall the app. Your orders and account data are stored online and are not lost. Additional tips: close other apps, ensure at least 500 MB of free storage, and try switching between Wi\u2011Fi and mobile data.\n\nNovaGear Support",
+        "facts": [
+            "- Update to the latest app version.\n- Restart your phone.\n- If the app still crashes, clear the app cache in your phone settings and sign in again.\n- If it keeps crashing after that, reinstall the app.\n- Your orders and account data are stored online and are not lost.\n- Additional tips: close other apps, make sure you have at least 500 MB of free storage, and switching between Wi-Fi and mobile data can also help."
+        ],
+        "tricky": false,
+        "llm_calls": 4,
+        "input_tokens": 1454,
+        "output_tokens": 749
+    },
+    {
+        "id": 106,
+        "query": "I typed the wrong password too many times and now I am locked out.",
+        "rules_error_count": 0,
+        "customer_id": "C003",
+        "expected_category": "tech",
+        "category": "tech",
+        "expected_urgency": "low",
+        "urgency": "low",
+        "expected_tools": [
+            "search_faq"
+        ],
+        "tools_used": [
+            "search_faq"
+        ],
+        "draft": "Hello,\n\nIf you see \"Account locked,\" wait 15 minutes and try again\u2014the lock is removed automatically after too many wrong attempts. To regain access, open the login screen and tap Forgot password, enter your account email, and we will send a reset link that is valid for 30 minutes. If the email does not arrive within 5 minutes, check your spam folder, then request a new link.\n\nNovaGear Support",
+        "facts": [
+            "- If you see \"Account locked\", wait 15 minutes and try again; the lock is removed automatically after too many wrong attempts.\n- Reset password steps: Open the login screen and tap Forgot password. Enter your account email and we send a reset link that is valid for 30 minutes.\n- If the email does not arrive within 5 minutes, check your spam folder, then request a new link."
+        ],
+        "tricky": false,
+        "llm_calls": 4,
+        "input_tokens": 1453,
+        "output_tokens": 729
+    },
+    {
+        "id": 107,
+        "query": "The app keeps logging me out every few minutes.",
+        "rules_error_count": 0,
+        "customer_id": "C001",
+        "expected_category": "tech",
+        "category": "tech",
+        "expected_urgency": "low",
+        "urgency": "high",
+        "expected_tools": [
+            "search_faq"
+        ],
+        "tools_used": [
+            "search_faq"
+        ],
+        "draft": "Hello,\n\nWe understand this is urgent. The notes you provided don\u2019t mention repeated logouts specifically, but they help with common login issues: ensure your email is typed correctly and Caps Lock is off, and if you see \u201cInvalid credentials\u201d use Forgot password. If you see \u201cAccount locked,\u201d wait 15 minutes and try again.\n\nA team member will follow up with you to resolve the repeated logout issue.\n\nNovaGear Support",
+        "facts": [
+            "- If login shows \"Invalid credentials\": use Forgot password.\n- If login shows \"Account locked\": wait 15 minutes and try again; the lock is removed automatically after too many wrong attempts.\n- Ensure email address is typed correctly and Caps Lock is off.\n- Forgot password flow: Open the login screen and tap Forgot password. Enter account email and a reset link is sent; the link is valid for 30 minutes.\n- If the reset email does not arrive within 5 minutes, check spam folder, then request a new link."
+        ],
+        "tricky": true,
+        "llm_calls": 4,
+        "input_tokens": 1461,
+        "output_tokens": 880
+    },
+    {
+        "id": 108,
+        "query": "Which payment methods do you accept?",
+        "rules_error_count": 0,
+        "customer_id": "C004",
+        "expected_category": "general",
+        "category": "general",
+        "expected_urgency": "low",
+        "urgency": "low",
+        "expected_tools": [
+            "search_faq"
+        ],
+        "tools_used": [
+            "search_faq"
+        ],
+        "draft": "Hello,\n\nWe accept Visa, Mastercard, and PayPal. Payment is taken when you place the order, and we never store your full card number.\n\nNovaGear Support",
+        "facts": [
+            "- Payment methods: Visa, Mastercard, and PayPal.\n- Payment is taken when you place the order.\n- We never store your full card number."
+        ],
+        "tricky": false,
+        "llm_calls": 4,
+        "input_tokens": 1340,
+        "output_tokens": 431
+    },
+    {
+        "id": 109,
+        "query": "How long does standard delivery usually take?",
+        "rules_error_count": 0,
+        "customer_id": "C001",
+        "expected_category": "general",
+        "category": "general",
+        "expected_urgency": "low",
+        "urgency": "low",
+        "expected_tools": [
+            "search_faq"
+        ],
+        "tools_used": [
+            "search_faq"
+        ],
+        "draft": "Hello,\n\nStandard delivery typically takes 5 to 7 business days, and orders ship within 2 business days. A team member will follow up if you need more specifics about your current order.\n\nNovaGear Support",
+        "facts": [
+            "- Standard delivery takes 5 to 7 business days.\n- Orders ship within 2 business days."
+        ],
+        "tricky": true,
+        "llm_calls": 4,
+        "input_tokens": 1363,
+        "output_tokens": 428
+    },
+    {
+        "id": 110,
+        "query": "I write for a tech magazine and would like to talk to your press team.",
+        "rules_error_count": 0,
+        "customer_id": "C002",
+        "expected_category": "general",
+        "category": "general",
+        "expected_urgency": "low",
+        "urgency": "low",
+        "expected_tools": [
+            "search_faq"
+        ],
+        "tools_used": [],
+        "draft": "Hello,\n\nWe\u2019re sorry, but we can\u2019t locate order information for the customer you mentioned. A team member will follow up to assist with connecting you to our press team.\n\nNovaGear Support",
+        "facts": [
+            "- Not found: list_orders\n- Not found: lookup_order for the orders relevant to the ticket (customer C002)\n- Customer id: C002"
+        ],
+        "tricky": false,
+        "llm_calls": 3,
+        "input_tokens": 841,
+        "output_tokens": 599
+    }
+]

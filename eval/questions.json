@@ -1,0 +1,138 @@
+[
+  {"id": 1,  
+  "customer_id": "C002", 
+  "query": "I was charged twice for my order, please fix this.",
+  "expected_category": "billing", 
+  "expected_urgency": "high", 
+  "expected_tools": ["list_orders"], 
+  "tricky": false
+  },
+
+  {"id": 2,  
+  "customer_id": "C003", 
+  "query": "What about my order?",
+  "expected_category": "billing", 
+  "expected_urgency": "low",  
+  "expected_tools": ["list_orders"], 
+  "tricky": true
+  },
+
+  {"id": 3,  
+  "customer_id": "C004", 
+  "query": "I cancelled my order last week. When will I get my refund?",
+  "expected_category": "billing", 
+  "expected_urgency": "low",  
+  "expected_tools": ["list_orders"], 
+  "tricky": false
+  },
+
+  {"id": 4,  
+  "customer_id": "C001", 
+  "query": "My order A-1007 still has not arrived and it is past the delivery date.",
+  "expected_category": "billing", 
+  "expected_urgency": "low", 
+  "expected_tools": ["lookup_order"], 
+  "tricky": false
+  },
+
+  {"id": 5,  
+  "customer_id": "C003", 
+  "query": "There is a $199 charge on my card that I do not recognise. I did not authorise it.",
+  "expected_category": "billing", 
+  "expected_urgency": "high",
+  "expected_tools": ["list_orders"], 
+  "tricky": false
+  },
+
+
+  {"id": 6,  
+  "customer_id": "C001", 
+  "query": "I forgot my password and cannot log in to the app.",
+  "expected_category": "tech", 
+  "expected_urgency": "low",  
+  "expected_tools": ["search_faq"], 
+  "tricky": false
+  },
+
+  {"id": 7,  
+  "customer_id": "C002", 
+  "query": "The app crashes every time I open it, so I cannot use it at all.",
+  "expected_category": "tech", 
+  "expected_urgency": "high",
+  "expected_tools": ["search_faq"], 
+  "tricky": false
+  },
+
+  {"id": 8,  
+  "customer_id": "C003", 
+  "query": "The app is very slow and freezes when I scroll.",
+  "expected_category": "tech", 
+  "expected_urgency": "low", 
+  "expected_tools": ["search_faq"], 
+  "tricky": false
+  },
+
+  {"id": 9,  
+  "customer_id": "C004", 
+  "query": "I asked for a password reset email twice but it never arrives.",
+  "expected_category": "tech", 
+  "expected_urgency": "low", 
+  "expected_tools": ["search_faq"], 
+  "tricky": false
+  },
+
+  {"id": 10, 
+  "customer_id": "C001", 
+  "query": "Someone logged into my account and changed my email address.",
+  "expected_category": "tech", 
+  "expected_urgency": "high",
+  "expected_tools": [], 
+  "tricky": true
+  },
+
+
+  {"id": 11, 
+  "customer_id": "C002", 
+  "query": "What are your support opening hours?",
+  "expected_category": "general", 
+  "expected_urgency": "low",
+  "expected_tools": ["search_faq"], 
+  "tricky": false
+  },
+
+  {"id": 12, 
+  "customer_id": "C003", 
+  "query": "Do you offer discounts if my company wants to buy 30 items?",
+  "expected_category": "general", 
+  "expected_urgency": "low",
+  "expected_tools": ["search_faq"], 
+  "tricky": false
+  },
+
+  {"id": 13, 
+  "customer_id": "C004", 
+  "query": "How many days do I have to return an item and get my money back?",
+  "expected_category": "general", 
+  "expected_urgency": "low",
+  "expected_tools": ["search_faq"], 
+  "tricky": true
+  },
+
+  {"id": 14, 
+  "customer_id": "C001", 
+  "query": "Just wanted to say your delivery team was great, thank you!",
+  "expected_category": "general", 
+  "expected_urgency": "low",
+  "expected_tools": [], 
+  "tricky": false
+  },
+
+  {"id": 15, 
+  "customer_id": "C002", 
+  "query": "Do you ship to Canada?",
+  "expected_category": "general", 
+  "expected_urgency": "low",
+  "expected_tools": ["search_faq"], 
+  "tricky": true
+  }
+]

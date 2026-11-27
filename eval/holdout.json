@@ -1,0 +1,84 @@
+[
+  {"id": 101,
+  "customer_id": "C003",
+  "query": "Can I still cancel order A-1004? It has not shipped yet.",
+   "expected_category": "billing",
+   "expected_urgency": "low", 
+   "expected_tools": ["lookup_order"],
+   "tricky": false
+  },
+
+  {"id": 102, "customer_id": "C004",
+  "query": "Has the refund for the item I sent back gone through yet?",
+   "expected_category": "billing",
+   "expected_urgency": "low", 
+   "expected_tools": ["list_orders"],
+   "tricky": false
+  },
+
+  {"id": 103, "customer_id": "C001",
+  "query": "I think order A-1001 was charged to my card but I never received an invoice.",
+   "expected_category": "billing",
+   "expected_urgency": "low", 
+   "expected_tools": ["lookup_order"],
+   "tricky": false
+  },
+
+  {"id": 104, "customer_id": "C002",
+  "query": "A payment of $79 left my account and I do not remember buying anything this week.",
+   "expected_category": "billing",
+   "expected_urgency": "high",
+   "expected_tools": ["list_orders"],
+   "tricky": true
+  },
+
+  {"id": 105, "customer_id": "C002",
+  "query": "How do I update the app? I cannot find where to do it.",
+   "expected_category": "tech",
+   "expected_urgency": "low", 
+   "expected_tools": ["search_faq"],
+   "tricky": false
+  },
+
+  {"id": 106, "customer_id": "C003",
+  "query": "I typed the wrong password too many times and now I am locked out.",
+   "expected_category": "tech",
+   "expected_urgency": "low", 
+   "expected_tools": ["search_faq"],
+   "tricky": false
+  },
+
+  {"id": 107, "customer_id": "C001",
+  "query": "The app keeps logging me out every few minutes.",
+   "expected_category": "tech",
+   "expected_urgency": "low", 
+   "expected_tools": ["search_faq"],
+   "tricky": true
+  },
+
+  {"id": 108,
+  "customer_id": "C004",
+  "query": "Which payment methods do you accept?",
+   "expected_category": "general",
+   "expected_urgency": "low",
+   "expected_tools": ["search_faq"],
+   "tricky": false
+  },
+
+  {"id": 109, "customer_id": "C001",
+  "query": "How long does standard delivery usually take?",
+   "expected_category": "general",
+   "expected_urgency": "low",
+   "expected_tools": ["search_faq"],
+   "tricky": true
+  },
+  
+  {"id": 110,
+  "customer_id": "C002",
+  "query": "I write for a tech magazine and would like to talk to your press team.",
+   "expected_category": "general",
+   "expected_urgency": "low",
+   "expected_tools": ["search_faq"],
+   "tricky": false
+  }
+]
